@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Miu – Trang cá nhân thú cưng | Sen Ơi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; }
+  </style>
+</head>
+
+<body class="bg-gradient-to-b from-[#fafbfc] to-[#eef1f4] text-gray-800">
+  <div class="max-w-md mx-auto bg-white min-h-screen">
+
+    <!-- LOST BANNER -->
+    <div id="lostBanner" class="bg-red-600 text-white px-4 py-3 text-center">
+      <p class="font-semibold text-sm">THÚ CƯNG ĐANG ĐI LẠC</p>
+      <p class="text-xs opacity-90 mt-1">Nếu bạn đang nhìn thấy Mít, vui lòng hỗ trợ ngay</p>
+    </div>
+
+    <!-- HEADER -->
+    <header class="relative px-4 pt-8 pb-5 text-center space-y-4">
+      <div class="absolute inset-x-0 top-0 h-28 bg-gradient-to-br from-[#e8f3f1] to-[#f6efe6]"></div>
+
+      <img src="pic/mit_01.jpg" loading="eager" onerror="this.src='https://via.placeholder.com/300x300?text=Miu'"
+           class="relative z-10 w-28 h-28 rounded-full mx-auto object-cover ring-4 ring-white shadow-sm"/>
+
+      <div class="relative z-10 space-y-1">
+        <h1 class="text-2xl font-semibold tracking-tight">Mít</h1>
+        <p class="text-gray-600 text-sm max-w-xs mx-auto">Một bé mèo điêu, thích ngủ trưa và sợ người lạ.</p>
+      </div>
+    </header>
+
+    <!-- ABOUT -->
+    <section class="px-4 py-4 space-y-2 text-sm">
+      <h2 class="font-medium text-gray-700">Giới thiệu</h2>
+      <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+        <p><span class="text-gray-500">Loài:</span> Mèo</p>
+        <p><span class="text-gray-500">Giới tính:</span> Cái</p>
+        <p><span class="text-gray-500">Tuổi:</span> ~4 tháng</p>
+        <p><span class="text-gray-500">Màu lông:</span> Xám trắng</p>
+        <p class="col-span-2"><span class="text-gray-500">Đặc điểm:</span> Đuôi ngắn</p>
+      </div>
+      <p class="text-xs text-gray-400 mt-2">Pet Code: 704221045812</p>
+    </section>
+
+    <!-- HEALTH NOTE (ONLY LOST MODE) -->
+    <section id="healthNote" class="px-4 py-4 border-t text-sm space-y-2">
+      <h2 class="font-medium text-red-600">Ghi chú sức khỏe</h2>
+      <ul class="list-disc list-inside text-gray-700 space-y-1">
+        <li>Đã tiêm vaccine đầy đủ</li>
+        <li>Đã triệt sản</li>
+        <li>Không cắn, khá nhát người lạ</li>
+        <li>Nếu thấy bé mệt, vui lòng cho uống nước</li>
+      </ul>
+    </section>
+
+    <!-- PHOTO ALBUM -->
+    <section id="photoAlbum" class="hidden px-4 py-4 border-t space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="font-medium text-gray-700">Ảnh của Miu</h2>
+        <span class="text-xs text-gray-400">6 ảnh</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <img src="https://picsum.photos/seed/miu1/600/600" class="rounded-xl object-cover"/>
+        <img src="https://picsum.photos/seed/miu2/600/600" class="rounded-xl object-cover"/>
+        <img src="https://picsum.photos/seed/miu3/600/600" class="rounded-xl object-cover"/>
+        <img src="https://picsum.photos/seed/miu4/600/600" class="rounded-xl object-cover"/>
+        <img src="https://picsum.photos/seed/miu5/600/600" class="rounded-xl object-cover"/>
+        <img src="https://picsum.photos/seed/miu6/600/600" class="rounded-xl object-cover"/>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section id="timeline" class="hidden px-4 py-4 border-t space-y-6">
+      <h2 class="font-medium text-gray-700">Cập nhật gần đây</h2>
+      <p class="text-sm text-gray-600">Các cập nhật sẽ được hiển thị khi thú cưng không trong trạng thái đi lạc.</p>
+    </section>
+
+    <!-- FOOTER -->
+    <!-- ACTIONS -->
+    <section class="px-4 py-6 border-t space-y-3">
+      <a href="tel:0901234567"
+         class="block w-full text-center py-4 rounded-xl bg-gray-900 text-white font-medium">
+        GỌI CHO SEN NGAY
+      </a>
+
+      <button onclick="openReportModal()"
+              class="w-full py-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-base transition">
+        GỬI VỊ TRÍ HIỆN TẠI
+      </button>
+
+      <p id="gpsStatus" class="text-xs text-gray-500 text-center"></p>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="px-4 py-6 border-t text-xs text-gray-400 text-center">Trang cá nhân thú cưng được quản lý bởi Sen Ơi.</footer>
+  <!-- REPORT LOCATION MODAL -->
+  <div id="reportModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl w-11/12 max-w-sm p-5 space-y-4">
+      <h3 class="text-lg font-semibold text-center">Báo vị trí hiện tại</h3>
+
+      <div class="space-y-2 text-sm">
+        <label class="block">Tên của bạn (tuỳ chọn)</label>
+        <input id="reportName" class="w-full border rounded-lg px-3 py-2" placeholder="Ví dụ: Anh Tuấn" />
+
+        <label class="block">Số điện thoại (nếu tiện)</label>
+        <input id="reportPhone" class="w-full border rounded-lg px-3 py-2" placeholder="Ví dụ: 09xxxxxxxx" />
+
+        <label class="block">Mô tả vị trí / tình trạng</label>
+        <textarea id="reportNote" rows="3" class="w-full border rounded-lg px-3 py-2"
+                  placeholder="Ví dụ: Bé đang ở trước cổng chợ, hơi sợ người"></textarea>
+      </div>
+
+      <button onclick="getGPS()"
+              class="w-full py-3 rounded-xl bg-gray-900 text-white text-sm font-medium">
+        LẤY VỊ TRÍ GPS
+      </button>
+
+      <div id="gpsResult" class="text-xs text-gray-600 text-center"></div>
+
+      <!-- MAP PREVIEW -->
+      <div id="mapPreview" class="w-full h-40 rounded-lg overflow-hidden border">
+        <iframe id="mapFrame"
+                class="w-full h-full"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+
+      <button onclick="submitReport()"
+              class="w-full py-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-base">
+        GỬI THÔNG TIN CHO SEN
+      </button>
+
+      <button onclick="closeReportModal()" class="w-full text-xs text-gray-400">Huỷ</button>
+    </div>
+  </div>
+
+  <script>
+  // LOST PAGE: luôn ở trạng thái đi lạc
+
+  function openReportModal() {
+    const m = document.getElementById('reportModal');
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+  }
+
+  function closeReportModal() {
+    document.getElementById('reportModal').classList.add('hidden');
+  }
+
+  let currentLocation = { lat: 21.0278, lng: 105.8342 }; // mặc định Hà Nội cho demo
+
+  // load map mặc định ngay khi mở modal
+  document.addEventListener('DOMContentLoaded', () => {
+    const frame = document.getElementById('mapFrame');
+    if (frame) {
+      frame.src = `https://www.google.com/maps?q=${currentLocation.lat},${currentLocation.lng}&output=embed`;
+    }
+  });
+
+  function getGPS() {
+    const result = document.getElementById('gpsResult');
+
+    if (!navigator.geolocation) {
+      result.innerText = 'Thiết bị không hỗ trợ GPS.';
+      return;
+    }
+
+    result.innerText = 'Đang xin quyền và lấy vị trí…';
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        currentLocation = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        };
+        const mapUrl = `https://www.google.com/maps?q=${currentLocation.lat},${currentLocation.lng}`;
+        result.innerHTML = `Đã lấy vị trí thành công.`;
+        const frame = document.getElementById('mapFrame');
+        frame.src = `https://www.google.com/maps?q=${currentLocation.lat},${currentLocation.lng}&output=embed`;
+        // map luôn hiển thị, không cần toggle
+      },
+      () => {
+        result.innerText = 'Không thể lấy vị trí. Vui lòng bật GPS.';
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  function submitReport() {
+    const name = document.getElementById('reportName').value;
+    const phone = document.getElementById('reportPhone').value;
+    const note = document.getElementById('reportNote').value;
+
+    if (!currentLocation) {
+      alert('Vui lòng lấy vị trí GPS trước khi gửi.');
+      return;
+    }
+
+    const payload = {
+      name,
+      phone,
+      note,
+      location: currentLocation,
+      petCode: '704221045812'
+    };
+
+    console.log('REPORT SUBMIT:', payload);
+
+    document.getElementById('gpsStatus').innerText = 'Cảm ơn bạn! Thông tin đã được gửi cho sen.';
+    closeReportModal();
+
+    // TODO: gửi payload về server / Google Form / Firebase
+  }
+</script>
+</body>
+</html>

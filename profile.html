@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Miu – Trang cá nhân thú cưng | Sen Ơi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; }
+  </style>
+</head>
+
+<body class="bg-gradient-to-b from-[#fafbfc] to-[#eef1f4] text-gray-800">
+  <div class="max-w-md mx-auto bg-white min-h-screen">
+
+    <!-- HEADER -->
+    <header class="relative px-4 pt-8 pb-5 text-center space-y-4">
+      <!-- soft cover -->
+      <div class="absolute inset-x-0 top-0 h-28 bg-gradient-to-br from-[#e8f3f1] to-[#f6efe6]"></div>
+
+      <img src="pic/mit_01.jpg" loading="eager" onerror="this.src='https://via.placeholder.com/300x300?text=Miu'"
+           class="relative z-10 w-28 h-28 rounded-full mx-auto object-cover ring-4 ring-white shadow-sm"/>
+
+      <div class="relative z-10 space-y-1">
+        <h1 class="text-2xl font-semibold tracking-tight">Mít</h1>
+        <p class="text-gray-600 text-sm max-w-xs mx-auto">
+          Một bé mèo điêu, thích ngủ ngày và báo người lạ.
+        </p>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="relative z-10 flex gap-3 justify-center pt-2">
+        <button onclick="toggleFollow()"
+          id="followBtn"
+          class="px-5 py-2 border border-gray-300 rounded-full text-sm hover:bg-gray-50 transition">
+          Theo dõi
+        </button>
+
+        <button onclick="openMessageModal()"
+          class="px-5 py-2 border border-gray-300 rounded-full text-sm hover:bg-gray-50 transition">
+          Gửi tin nhắn
+        </button>
+      </div>
+    </header>
+
+    <!-- ABOUT -->
+    <section class="px-4 py-4 space-y-2 text-sm">
+      <h2 class="font-medium text-gray-700">Giới thiệu</h2>
+      <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+        <p><span class="text-gray-500">Loài:</span> Mèo</p>
+        <p><span class="text-gray-500">Giới tính:</span> Cái</p>
+        <p><span class="text-gray-500">Tuổi:</span> ~4 tháng</p>
+        <p><span class="text-gray-500">Màu lông:</span> Xám trắng</p>
+        <p class="col-span-2"><span class="text-gray-500">Đặc điểm:</span> Đuôi ngắn</p>
+      </div>
+      <p class="text-xs text-gray-400 mt-2">Pet Code: 704221045812</p>
+    </section>
+
+    <!-- PHOTO ALBUM -->
+    <section class="px-4 py-4 border-t space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="font-medium text-gray-700">Ảnh của Miu</h2>
+        <span class="text-xs text-gray-400">6 ảnh</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <img onclick="openImage(this.src)" src="pic/mit_01.jpg" loading="lazy" onerror="this.src='https://via.placeholder.com/600x600?text=Photo'" class="rounded-xl object-cover cursor-pointer"/>
+        <img onclick="openImage(this.src)" src="pic/mit_02.jpg" loading="lazy" onerror="this.src='https://via.placeholder.com/600x600?text=Photo'" class="rounded-xl object-cover cursor-pointer"/>
+        <img onclick="openImage(this.src)" src="pic/mit_03.jpg" loading="lazy" onerror="this.src='https://via.placeholder.com/600x600?text=Photo'" class="rounded-xl object-cover cursor-pointer"/>
+        <img onclick="openImage(this.src)" src="pic/mit_01.jpg" loading="lazy" onerror="this.src='https://via.placeholder.com/600x600?text=Photo'" class="rounded-xl object-cover cursor-pointer"/>
+        <img onclick="openImage(this.src)" src="pic/mit_02.jpg" loading="lazy" onerror="this.src='https://via.placeholder.com/600x600?text=Photo'" class="rounded-xl object-cover cursor-pointer"/>
+        <img onclick="openImage(this.src)" src="pic/mit_03.jpg" loading="lazy" onerror="this.src='https://via.placeholder.com/600x600?text=Photo'" class="rounded-xl object-cover cursor-pointer"/>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="px-4 py-4 border-t space-y-6">
+      <h2 class="font-medium text-gray-700">Cập nhật gần đây</h2>
+
+      <div class="space-y-2">
+        <img onclick="openImage(this.src)" src="pic/mit_01.jpg" class="rounded-xl object-cover cursor-pointer"/>
+        <p class="text-sm leading-relaxed">
+          Mít ăn nhìu béo như con hêu.
+        </p>
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-gray-400">2 ngày trước</p>
+          <button onclick="toggleLike(this)" class="text-xs text-gray-500">Thích (<span>3</span>)</button>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <img onclick="openImage(this.src)" src="pic/mit_02.jpg" class="rounded-xl object-cover cursor-pointer"/>
+        <p class="text-sm leading-relaxed">
+          Mits rất thích báo chủ và ăn vụng.
+        </p>
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-gray-400">1 tuần trước</p>
+          <button onclick="toggleLike(this)" class="text-xs text-gray-500">Thích (<span>5</span>)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIFE MILESTONES -->
+    <section class="px-4 py-4 border-t space-y-3 text-sm">
+      <h2 class="font-medium text-gray-700">Dấu mốc cuộc đời</h2>
+      <div class="space-y-1">
+        <p>Nhận nuôi: 03/2023</p>
+        <p>Tiêm vaccine: 06/2023</p>
+        <p>Triệt sản: 10/2023</p>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="px-4 py-6 border-t text-xs text-gray-400 text-center">
+      Trang cá nhân thú cưng được quản lý bởi Sen Ơi.
+    </footer>
+  </div>
+
+  <!-- MESSAGE MODAL -->
+  <div id="messageModal"
+       class="fixed inset-0 bg-black/40 hidden items-center justify-center">
+    <div class="bg-white rounded-2xl w-11/12 max-w-sm p-4 space-y-3">
+      <h3 class="font-medium">Gửi tin nhắn cho Sen</h3>
+      <input class="w-full border rounded-lg px-3 py-2 text-sm"
+             placeholder="Tên của bạn (tuỳ chọn)">
+      <textarea class="w-full border rounded-lg px-3 py-2 text-sm"
+                rows="3"
+                placeholder="Nội dung tin nhắn"></textarea>
+      <button onclick="closeMessageModal()"
+              class="w-full bg-gray-800 hover:bg-gray-900 text-white rounded-lg py-2 text-sm transition">
+        Gửi tin nhắn
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let followed = false;
+
+    function toggleFollow() {
+      followed = !followed;
+      document.getElementById('followBtn').innerText =
+        followed ? 'Đang theo dõi' : 'Theo dõi';
+    }
+
+    function openMessageModal() {
+      const m = document.getElementById('messageModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeMessageModal() {
+      document.getElementById('messageModal').classList.add('hidden');
+    }
+  </script>
+  <!-- IMAGE VIEWER -->
+  <div id="imageViewer" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50" onclick="closeImage()">
+    <img id="viewerImg" class="max-w-[90%] max-h-[90%] rounded-xl" />
+  </div>
+
+  <script>
+    function openImage(src) {
+      const v = document.getElementById('imageViewer');
+      document.getElementById('viewerImg').src = src;
+      v.classList.remove('hidden');
+      v.classList.add('flex');
+    }
+
+    function closeImage() {
+      document.getElementById('imageViewer').classList.add('hidden');
+    }
+
+    function toggleLike(btn) {
+      const span = btn.querySelector('span');
+      let count = parseInt(span.innerText, 10);
+      if (!btn.dataset.liked) {
+        count++;
+        btn.dataset.liked = '1';
+        btn.classList.add('font-medium');
+      } else {
+        count--;
+        delete btn.dataset.liked;
+        btn.classList.remove('font-medium');
+      }
+      span.innerText = count;
+    }
+  </script>
+</body>
+</html>
