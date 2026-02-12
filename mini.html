@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mini - Sen Ơi | Hệ sinh thái định danh thú cưng</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Lexend', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
+    .status-memorial { filter: grayscale(1) contrast(0.95); }
+    .timeline-item::before { content: ''; position: absolute; left: 15px; top: 24px; bottom: -24px; width: 2px; background: #e2e8f0; }
+    .timeline-item:last-child::before { display: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .modal-active { overflow: hidden; }
+    
+    /* Album Grid Styles */
+    .album-grid-mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    
+    /* Card Styles */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Memorial effect for avatar */
+    .memorial-avatar {
+        filter: grayscale(1);
+        border-color: #94a3b8 !important;
+    }
+  </style>
+</head>
+<body class="transition-all duration-700">
+
+  <!-- DEMO CONTROLLER -->
+  <div id="demo-controller" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] hidden gap-2 p-2 bg-white/90 shadow-2xl rounded-full border border-slate-200 scale-90 md:scale-100">
+    <button onclick="changeMode('normal')" class="px-4 py-2 rounded-full text-xs font-bold bg-blue-100 text-blue-600 hover:bg-blue-200 transition">Bình Thường</button>
+    <button onclick="changeMode('lost')" class="px-4 py-2 rounded-full text-xs font-bold bg-red-100 text-red-600 hover:bg-red-200 transition">Báo Mất</button>
+    <button onclick="changeMode('memorial')" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-800 text-white hover:bg-black transition">Tưởng Niệm</button>
+  </div>
+
+  <!-- UNIVERSAL MODAL SYSTEM -->
+  <div id="modal-overlay" class="fixed inset-0 bg-black/95 z-[80] hidden flex items-center justify-center p-0 transition-opacity duration-300 opacity-0">
+    <button onclick="closeModal()" class="absolute top-6 right-6 text-white text-4xl hover:scale-110 z-[100] transition">&times;</button>
+    <div id="modal-content" class="w-full h-full flex justify-center items-center"></div>
+  </div>
+
+  <div class="min-h-screen flex justify-center items-start md:py-12">
+    <div id="app-container" class="w-full max-w-md bg-white min-h-screen md:min-h-0 md:rounded-[3rem] shadow-2xl overflow-hidden relative transition-all duration-500">
+      
+      <!-- HERO SECTION -->
+      <header id="hero-section" class="relative"></header>
+
+      <!-- MAIN CONTENT -->
+      <div class="mt-20 px-6 pb-24 space-y-8">
+        <div id="identity-section" class="text-center"></div>
+        <div id="info-section"></div>
+        
+        <!-- Nút hành động (Sẽ bị ẩn khi tưởng niệm) -->
+        <div id="action-section"></div>
+        
+        <!-- Album Section -->
+        <div id="album-section" class="space-y-4"></div>
+        
+        <div id="events-section" class="space-y-4"></div>
+        <div id="timeline-section" class="space-y-6"></div>
+        
+        <!-- Sổ lưu bút (Chỉ hiện khi tưởng niệm) -->
+        <div id="guestbook-section" class="hidden space-y-4 pt-6 border-t border-dashed border-slate-200"></div>
+      </div>
+
+      <footer class="bg-slate-50 py-10 text-center border-t border-slate-100 px-6">
+        <p class="text-xs text-slate-400 font-medium tracking-wide">Hồ sơ được lưu trữ và quản lý bởi <span class="font-bold text-slate-900 italic">SenOi 2026</span></p>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const PET_DATA = {
+      settings: { preview: false, status: "memorial" },
+      basic: {
+        name: "Mini",
+        gender: "♀",
+        bio: "Bé mèo tai cụp đuôi gãy như con picachu đáng iu của chị Thùy.",
+        avatar: "https://senoicdn.imgix.net/ava.HEIC?q=80&w=500&auto=format",
+        cover: "https://senoicdn.imgix.net/bg.jpeg?q=80&w=1000&auto=format",
+        lostBio: "Mít bị lạc lúc 14:00 ngày 12/02. Bé có đặc điểm nhát người, đeo vòng cổ đỏ.",
+        lostContact: "0901234567"
+      },
+      stats: [
+        { label: "Giống", value: "Mèo Lai" },
+        { label: "Tuổi", value: "~3 tháng" },
+        { label: "Màu lông", value: "Mướp" },
+        { label: "Đặc điểm", value: "Tai cụp đuôi gãy" }
+      ],
+      album: [
+        { 
+          url: "https://senoicdn.imgix.net/quan2.jpeg?q=80&w=600", 
+          caption: "Mini rất quấn chị Thùy đấy nhé!" 
+        },
+        { 
+          url: "https://senoicdn.imgix.net/quan.jpeg?q=80&w=600", 
+          caption: "Mini rất quấn chị Thùy đấy nhé!" 
+        },
+        { 
+          url: "https://senoicdn.imgix.net/nhieumeo.JPG?q=80&w=600", 
+          caption: "Nhiều mèo quá" 
+        },
+        { 
+          url: "https://senoicdn.imgix.net/mini.HEIC?q=80&w=600", 
+          caption: "Mini cute của chị Thùy" 
+        },
+        { 
+          url: "https://senoicdn.imgix.net/die.jpg?q=80&w=600", 
+          caption: "Đi ẻ cũng theo đuôi" 
+        },
+        { 
+          url: "https://senoicdn.imgix.net/danhnhau.jpeg?q=80&w=600", 
+          caption: "Mini đánh nhau với anh Dưa" 
+        },
+        { 
+          url: "https://senoicdn.imgix.net/cuoiheo.HEIC?q=80&w=600", 
+          caption: "Mini cưỡi heo" 
+        },
+        { 
+          url: "https://senoicdn.imgix.net/buon2.HEIC?q=80&w=600", 
+          caption: "Mini buồn" 
+        },
+        { 
+          url: "https://senoicdn.imgix.net/bochang2.png?q=80&w=600", 
+          caption: "Mini bóc hàng giúp chị Thùy" 
+        }
+        
+      ],
+      events: [
+        { icon: "🏥", label: "Tiêm chủng", desc: "Mũi 2 - Nhắc lại", color: "yellow" },
+        { icon: "✂️", label: "Spa", desc: "Cắt tỉa móng", color: "blue" }
+      ],
+      timeline: [
+        { key: 'memorial', 
+          type: 'end', icon: '🕊️', color: 'slate-800', 
+          time: '12/02/2026', 
+          title: 'Về hành tinh mèo', 
+          desc: 'Mít đã hoàn thành sứ mệnh mang niềm vui đến thế gian và trở về vì sao của mình.', 
+          img: 'https://senoicdn.imgix.net/radi.jpeg?q=80&w=600' },
+        { key: 'sick', 
+          icon: '🚑', color: 'orange-500', 
+          time: '09/02/2026', 
+          title: 'Mini bị ốm rồi', 
+          desc: 'Mini có dấu hiệu mệt mỏi, bỏ ăn và cần được chăm sóc y tế ngay lập tức.' },
+          { key: 'money', 
+          icon: '🚑', color: 'orange-500', 
+          time: '01/02/2026', 
+          title: 'Mini suýt bị chị Thùy bán đi', 
+          desc: 'Mini suýt bị bán nhưng mà cute quá nên thôi.', 
+          img: 'https://senoicdn.imgix.net/biban.HEIC?q=80&w=600' },
+        { key: 'home', 
+          icon: '🏠', color: 'orange-500', 
+          time: '16/01/2026', 
+          title: 'Ngày đầu tiên đón mini về nhà', 
+          desc: 'Chào mừng mini về nhà mới! Mong con sẽ có những tháng ngày hạnh phúc bên gia đình.' }
+      ],
+      guestbook: [
+        { author: "Lợn Nhật", message: "Mini đi thanh thản nhé, em mãi là bé mèo cutie nhất nhà." }
+      ]
+    };
+
+    function renderApp() {
+      const controller = document.getElementById('demo-controller');
+      if (PET_DATA.settings.preview) controller.classList.replace('hidden', 'flex');
+
+      // Hero
+      document.getElementById('hero-section').innerHTML = `
+        <div id="standard-cover" class="h-48 bg-slate-200 relative overflow-hidden">
+          <img src="${PET_DATA.basic.cover}" class="w-full h-full object-cover opacity-80 cursor-pointer" onclick="viewSingleImage('${PET_DATA.basic.cover}', 'Ảnh bìa')">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        </div>
+        <div id="lost-cover" class="hidden h-48 bg-red-600 p-6 flex flex-col justify-center text-white">
+          <h2 class="text-2xl font-black italic uppercase">KHẨN CẤP!</h2>
+          <p class="text-sm font-medium mt-1 leading-tight">${PET_DATA.basic.lostBio}</p>
+        </div>
+        <div class="absolute -bottom-16 left-1/2 -translate-x-1/2">
+          <div class="relative w-32 h-32 bg-white rounded-[2.5rem] p-1 shadow-2xl transition-all duration-500" id="avatar-container">
+            <img id="avatar-photo" src="${PET_DATA.basic.avatar}" class="w-full h-full object-cover rounded-[2.2rem] cursor-pointer" onclick="viewSingleImage('${PET_DATA.basic.avatar}', 'Ảnh đại diện')">
+            <div id="status-badge" class="absolute -right-2 top-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full border-2 border-white">BÌNH AN</div>
+          </div>
+        </div>
+      `;
+
+      // Identity
+      document.getElementById('identity-section').innerHTML = `
+        <h1 class="text-3xl font-bold text-slate-800">${PET_DATA.basic.name} <span class="text-pink-400" id="gender-icon">${PET_DATA.basic.gender}</span></h1>
+        <p class="text-slate-500 mt-2 text-sm italic">"${PET_DATA.basic.bio}"</p>
+      `;
+
+      // Album Mini
+      const miniAlbum = PET_DATA.album.slice(0, 3);
+      document.getElementById('album-section').innerHTML = `
+        <div class="flex items-center justify-between px-1">
+          <h3 class="font-bold text-slate-800 text-lg tracking-tight">Khoảnh khắc</h3>
+          <button onclick="openFullAlbum()" class="text-blue-600 text-[11px] font-bold uppercase tracking-wider hover:underline">Xem tất cả (${PET_DATA.album.length})</button>
+        </div>
+        <div class="album-grid-mini">
+          ${miniAlbum.map((item, idx) => `
+            <div class="relative aspect-square rounded-[1.5rem] overflow-hidden bg-slate-100 cursor-pointer group" onclick="openFullAlbum(${idx})">
+              <img src="${item.url}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+              ${idx === 2 && PET_DATA.album.length > 3 ? `
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center text-white font-bold text-lg">
+                  +${PET_DATA.album.length - 3}
+                </div>
+              ` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      // Info Table
+      document.getElementById('info-section').innerHTML = `
+        <details class="group bg-slate-50 rounded-3xl overflow-hidden border border-slate-100">
+          <summary class="flex items-center justify-between p-4 cursor-pointer list-none uppercase text-[10px] font-bold text-slate-500 tracking-widest">
+            Hồ sơ lý lịch <span class="group-open:rotate-180 transition">▼</span>
+          </summary>
+          <div class="p-4 grid grid-cols-2 gap-4 text-sm border-t border-slate-100">
+            ${PET_DATA.stats.map(s => `<div><p class="text-slate-400 text-[9px] uppercase font-bold">${s.label}</p><p class="font-bold">${s.value}</p></div>`).join('')}
+          </div>
+        </details>
+      `;
+
+      // Actions
+      document.getElementById('action-section').innerHTML = `
+        <div id="normal-actions" class="flex gap-2">
+          <button onclick="openMessageModal()" class="flex-1 py-4 bg-slate-900 text-white rounded-[1.5rem] font-bold shadow-lg active:scale-95 transition">Để lại lời nhắn</button>
+          <button class="flex-1 py-4 bg-white border border-slate-200 text-slate-800 rounded-[1.5rem] font-bold active:scale-95 transition">Tặng quà</button>
+        </div>
+        <div id="lost-actions" class="hidden flex-col gap-3">
+            <button class="w-full py-4 bg-red-600 text-white rounded-[1.5rem] font-black shadow-xl animate-bounce">📍 GỬI VỊ TRÍ HIỆN TẠI</button>
+        </div>
+      `;
+
+      // Events
+      document.getElementById('events-section').innerHTML = `
+        <h3 class="font-bold text-slate-800 text-lg px-1">Lịch sử chăm sóc</h3>
+        <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar px-1">
+          ${PET_DATA.events.map(e => `
+            <div class="min-w-[140px] bg-${e.color}-50 p-4 rounded-3xl border border-${e.color}-100 flex flex-col items-center">
+              <span class="text-2xl">${e.icon}</span>
+              <p class="text-[10px] font-bold text-${e.color}-600 mt-1 uppercase tracking-widest">${e.label}</p>
+              <p class="text-[11px] font-medium text-slate-600 text-center mt-1">${e.desc}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      // Timeline
+      document.getElementById('timeline-section').innerHTML = `
+        <h3 class="font-bold text-slate-800 text-lg px-1">Dòng thời gian</h3>
+        <div id="timeline-list" class="space-y-8 relative mt-4">
+          ${PET_DATA.timeline.map(t => `
+            <div id="tm-${t.key}" class="${t.key === 'memorial' ? 'hidden' : ''} timeline-item relative pl-10 cursor-pointer group" onclick="viewTimelineDetail('${t.key}')">
+              <div class="absolute left-0 w-8 h-8 bg-${t.color} rounded-full flex items-center justify-center text-white z-10 shadow-lg group-hover:scale-110 transition">${t.icon}</div>
+              <div class="space-y-2">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${t.time}</p>
+                <p class="text-sm font-bold text-slate-800">${t.title}</p>
+                ${t.img ? `<img src="${t.img}" class="w-full h-32 object-cover rounded-[1.5rem] group-hover:opacity-90 transition">` : `<p class="text-xs text-slate-500 italic">${t.desc}</p>`}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      // Guestbook
+      document.getElementById('guestbook-section').innerHTML = `
+        <div class="text-center mb-6">
+            <h3 class="font-bold text-slate-800 text-lg">Sổ lưu bút</h3>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Gửi lời thương nhớ đến ${PET_DATA.basic.name}</p>
+        </div>
+        <div class="bg-slate-50 rounded-[2.5rem] p-6 space-y-6 border border-slate-100">
+          <div class="space-y-4">
+            ${PET_DATA.guestbook.map(g => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">${g.author}</p>
+                    <p class="text-sm text-slate-600 italic leading-relaxed">"${g.message}"</p>
+                </div>
+            `).join('')}
+          </div>
+          <div class="pt-4 border-t border-slate-200">
+            <textarea class="w-full p-4 rounded-2xl border border-slate-200 text-sm outline-none focus:border-slate-400 bg-white" rows="3" placeholder="Viết vài dòng kỷ niệm..."></textarea>
+            <button class="w-full mt-3 py-4 bg-slate-800 text-white rounded-2xl text-xs font-bold uppercase tracking-widest active:scale-95 transition">Gửi lời nhắn nhủ</button>
+          </div>
+        </div>
+      `;
+
+      changeMode(PET_DATA.settings.status);
+    }
+
+    // Modal Logic
+    const modal = document.getElementById('modal-overlay');
+    const modalContent = document.getElementById('modal-content');
+
+    function showModal(html) {
+      modalContent.innerHTML = html;
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.replace('opacity-0', 'opacity-100');
+        document.body.classList.add('modal-active');
+      }, 10);
+    }
+
+    function closeModal() {
+      modal.classList.replace('opacity-100', 'opacity-0');
+      document.body.classList.remove('modal-active');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function openFullAlbum(startIdx = 0) {
+      const albumHtml = `
+        <div class="w-full h-full md:max-w-md bg-black/40 flex flex-col relative overflow-hidden">
+          <div class="absolute top-6 left-6 z-50">
+            <button onclick="closeModal()" class="w-10 h-10 glass-card rounded-full flex items-center justify-center text-white shadow-xl active:scale-90 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar space-y-6 pb-20 pt-16">
+            ${PET_DATA.album.map((item, idx) => `
+              <div id="photo-card-${idx}" class="relative group rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-900 aspect-[4/5] scroll-mt-20">
+                <img src="${item.url}" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 flex flex-col justify-end p-8">
+                  <div class="flex justify-between items-end gap-4">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-3">
+                        <img src="${PET_DATA.basic.avatar}" class="w-6 h-6 rounded-full border border-white/40">
+                        <span class="text-[10px] font-bold text-white uppercase tracking-widest">${PET_DATA.basic.name}</span>
+                      </div>
+                      <p class="text-white text-base font-medium leading-relaxed italic drop-shadow-md">"${item.caption}"</p>
+                    </div>
+                    <button class="w-12 h-12 glass-card rounded-full flex items-center justify-center text-xl shadow-lg active:scale-125 transition">❤️</button>
+                  </div>
+                </div>
+                <div class="absolute top-6 right-6">
+                  <div class="px-3 py-1 glass-card rounded-full text-[9px] font-black text-white/80 uppercase tracking-widest">${idx + 1} / ${PET_DATA.album.length}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      showModal(albumHtml);
+      setTimeout(() => {
+        const target = document.getElementById(`photo-card-${startIdx}`);
+        if(target) target.scrollIntoView({ behavior: 'smooth' });
+      }, 400);
+    }
+
+    function viewSingleImage(src, title) {
+      showModal(`
+        <div class="flex flex-col items-center p-4">
+          <img src="${src}" class="max-h-[80vh] rounded-[3rem] shadow-2xl border-4 border-white/10">
+          <div class="mt-6 glass-card px-6 py-2 rounded-full text-white text-[10px] font-bold tracking-[0.3em] uppercase">${title}</div>
+        </div>
+      `);
+    }
+
+    function changeMode(mode) {
+      const container = document.getElementById('app-container');
+      const stdCover = document.getElementById('standard-cover');
+      const lstCover = document.getElementById('lost-cover');
+      const badge = document.getElementById('status-badge');
+      const avatar = document.getElementById('avatar-photo');
+      const avatarBox = document.getElementById('avatar-container');
+      const actions = document.getElementById('action-section');
+      const events = document.getElementById('events-section');
+      const guestbook = document.getElementById('guestbook-section');
+      const tmMemorial = document.getElementById('tm-memorial');
+      const nActions = document.getElementById('normal-actions');
+      const lActions = document.getElementById('lost-actions');
+
+      // RESET
+      container.classList.remove('status-memorial');
+      stdCover.classList.remove('hidden');
+      lstCover.classList.add('hidden');
+      avatarBox.classList.remove('memorial-avatar');
+      avatar.style.filter = "none";
+      actions.classList.remove('hidden');
+      events.classList.remove('hidden');
+      guestbook.classList.add('hidden');
+      if(tmMemorial) tmMemorial.classList.add('hidden');
+      badge.className = "absolute -right-2 top-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full border-2 border-white";
+      badge.innerText = "BÌNH AN";
+
+      if (mode === 'lost') {
+        stdCover.classList.add('hidden');
+        lstCover.classList.remove('hidden');
+        nActions.classList.add('hidden');
+        lActions.classList.remove('hidden');
+        events.classList.add('hidden');
+        badge.className = "absolute -right-2 top-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full border-2 border-white animate-pulse";
+        badge.innerText = "THẤT LẠC";
+      } else if (mode === 'memorial') {
+        container.classList.add('status-memorial');
+        avatarBox.classList.add('memorial-avatar');
+        avatar.style.filter = "grayscale(1)";
+        actions.classList.add('hidden'); // ẨN HOÀN TOÀN NÚT HÀNH ĐỘNG
+        events.classList.add('hidden');
+        guestbook.classList.remove('hidden');
+        if(tmMemorial) tmMemorial.classList.remove('hidden');
+        badge.className = "absolute -right-2 top-2 bg-slate-500 text-white text-[10px] font-bold px-2 py-1 rounded-full border-2 border-white";
+        badge.innerText = "THIÊN ĐƯỜNG";
+      }
+    }
+
+    function openMessageModal() {
+        showModal(`
+        <div class="bg-white p-8 rounded-[3rem] w-full max-w-sm shadow-2xl space-y-6">
+          <div class="text-center">
+            <h2 class="text-2xl font-black text-slate-800 uppercase italic">Để lại lời nhắn</h2>
+          </div>
+          <div class="space-y-3">
+            <input type="text" placeholder="Tên của bạn..." class="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 text-sm outline-none">
+            <textarea placeholder="Nội dung..." rows="4" class="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 text-sm outline-none"></textarea>
+          </div>
+          <button onclick="closeModal()" class="w-full py-4 bg-slate-900 text-white rounded-[1.5rem] font-bold uppercase tracking-widest text-xs active:scale-95 transition">Gửi đi ngay</button>
+        </div>
+      `);
+    }
+
+    function viewTimelineDetail(key) {
+      const item = PET_DATA.timeline.find(t => t.key === key);
+      showModal(`
+        <div class="bg-white rounded-[3rem] overflow-hidden w-full max-w-sm shadow-2xl">
+          <img src="${item.img}" class="w-full h-56 object-cover">
+          <div class="p-8 space-y-4">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${item.time}</p>
+            <h2 class="text-2xl font-black text-slate-800 uppercase italic">${item.title}</h2>
+            <p class="text-sm text-slate-500 leading-relaxed italic border-l-2 border-slate-100 pl-4">"${item.desc}"</p>
+            <button onclick="closeModal()" class="w-full py-3 bg-slate-50 rounded-2xl text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4">Quay lại</button>
+          </div>
+        </div>
+      `);
+    }
+
+    window.onload = renderApp;
+  </script>
+</body>
+</html>
